@@ -1,9 +1,13 @@
 import os
 import sys
 from dotenv import load_dotenv
+import pytest
 
 # Add src to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+if os.getenv("RUN_LOCAL_LLM", "").lower() not in {"1", "true", "yes"}:
+    pytest.skip("Local LLM test disabled by default", allow_module_level=True)
 
 from src.core.local_provider import LocalProvider
 
