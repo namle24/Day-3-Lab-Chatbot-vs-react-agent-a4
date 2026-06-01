@@ -37,5 +37,23 @@ def compare_vehicles(model_a: str, model_b: str) -> dict[str, Any]:
     return {"ok": True, "comparison": data}
 
 
+def get_vehicle_specs(model: str) -> dict[str, Any]:
+    """Retrieve structured specifications for a specific vehicle model."""
+    store = get_rag_store()
+    hits = store.search(f"thông số kỹ thuật động cơ pin kích thước {model}", top_k=4, model_filter=model)
+    
+    from src.rag.store import _extract_highlights
+    highlights = _extract_highlights(hits)
+    text_snippet = " ".join(h.get("snippet", "") for h in hits)
+    
+    return {
+        "ok": True,
+        "model": model,
+        "specs": highlights,
+        "details": text_snippet,
+        "sources": [h.get("url") for h in hits if h.get("url")]
+    }
+
+
 def format_lookup_for_agent(payload: dict[str, Any]) -> str:
     return json.dumps(payload, ensure_ascii=False, indent=2)

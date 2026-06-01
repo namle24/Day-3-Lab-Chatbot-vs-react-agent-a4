@@ -16,10 +16,18 @@ def get_tool_specs() -> list[dict[str, Any]]:
         {
             "name": "lookup_vehicle",
             "description": (
-                "Tra cứu thông số, giá niêm yết, giá lăn bánh và mô tả xe VinFast "
+                "Tra cứu thông tin chung, tính năng, và mô tả xe VinFast "
                 "từ knowledge base. Tham số: query (string), optional top_k (int)."
             ),
             "parameters": {"query": "string", "top_k": "int optional"},
+        },
+        {
+            "name": "get_vehicle_specs",
+            "description": (
+                "Tra cứu ĐẶC TÍNH, THÔNG SỐ KỸ THUẬT (kích thước, pin, quãng đường, giá, số chỗ) "
+                "của một dòng xe cụ thể. Trả về cấu trúc JSON dễ đọc. Tham số: car_model (string)."
+            ),
+            "parameters": {"car_model": "string"},
         },
         {
             "name": "compare_vehicles",
@@ -111,6 +119,10 @@ class ToolExecutor:
             return vehicle_lookup.lookup_vehicle(
                 args.get("query", ""),
                 int(args.get("top_k", 4)),
+            )
+        if tool_name == "get_vehicle_specs":
+            return vehicle_lookup.get_vehicle_specs(
+                args.get("car_model", "VF5")
             )
         if tool_name == "compare_vehicles":
             return vehicle_lookup.compare_vehicles(
