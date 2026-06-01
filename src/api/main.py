@@ -165,14 +165,18 @@ def post_chat_api(body: ChatRequest, db: Session = Depends(get_db)):
     
     latency_ms = int((time.time() - start_time) * 1000)
     
-    # Determine the active model and provider
-    provider = os.getenv("DEFAULT_PROVIDER", "openai")
-    model = os.getenv("DEFAULT_MODEL", "gpt-4o")
+    # Determine the active model and provider from environment or defaults
+    provider = os.getenv("DEFAULT_PROVIDER", "openai").lower()
     
-    if provider == "local":
-        model = "Phi-3-mini"
-    elif provider == "google":
-        model = "gemini-1.5-flash"
+    # Map provider to model name
+    model_map = {
+        "openai": os.getenv("DEFAULT_MODEL", "gpt-4o"),
+        "google": "gemini-1.5-flash",
+        "local": "Phi-3-mini",
+        "gemini": "gemini-1.5-flash",
+    }
+    
+    model = model_map.get(provider, "gpt-4o")
     
     return {
         "reply": result["reply"],

@@ -249,9 +249,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update preview text in sidebar
             if (previewEl) previewEl.textContent = result.reply;
 
-            // Update stats badge
-            activeModelBadge.textContent = result.model;
-            providerBadge.textContent = `Provider: ${result.provider} (${result.latency_ms}ms)`;
+            // Update stats badge with safe defaults
+            const model = result.model || 'gpt-4o';
+            const provider = result.provider || 'OpenAI';
+            const latency = result.latency_ms || 0;
+            
+            activeModelBadge.textContent = `Model: ${model}`;
+            providerBadge.textContent = `Provider: ${provider} (${latency}ms)`;
 
         } catch (error) {
             console.error('Lỗi gửi tin nhắn:', error);
