@@ -28,11 +28,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Flexible API fetch helper: tries '/api' then '/api/v1'
+    async function apiFetch(path, options) {
+        const bases = ['/api', '/api/v1'];
+        let lastError = null;
+        for (const base of bases) {
+            try {
+                const res = await fetch(base + path, options);
+                if (res.ok) return res;
+                lastError = new Error(`HTTP ${res.status}`);
+            } catch (err) {
+                lastError = err;
+            }
+        }
+        throw lastError;
+    }
+
     // Fetch simulated users list
     async function fetchUsers() {
-        const response = await fetch('/api/users');
+        const response = await apiFetch('/users');
         if (!response.ok) throw new Error('Không thể tải danh sách người dùng');
-        
+
         users = await response.json();
         renderUsersList();
     }
@@ -108,9 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Simulate Memory call: Fetch user chat history from server
-            const response = await fetch(`/api/chat/${user.id}/history`);
+            const response = await apiFetch(`/chat/${user.id}/history`);
             if (!response.ok) throw new Error('Không thể tải lịch sử chat');
-            
+
             const history = await response.json();
             renderChatHistory(history);
             scrollToBottom();
@@ -209,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Send payload to backend
-            const response = await fetch('/api/chat', {
+            const response = await apiFetch('/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
