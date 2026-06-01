@@ -1,0 +1,325 @@
+{
+  "vehicles": [
+    {
+      "model": "VF3",
+      "category": "Mini SUV",
+      "description": "Xe điện mini dành cho di chuyển đô thị, kích thước nhỏ gọn, giá rẻ, tiết kiệm năng lượng",
+      "specs": {
+        "length_mm": 3190,
+        "width_mm": 1679,
+        "height_mm": 1622,
+        "seats": 4,
+        "power_kw": 75,
+        "range_km": "300-350",
+        "battery_kwh": "37.5"
+      },
+      "variants": [
+        {
+          "name": "VF3 Eco",
+          "price_vnd": 273000000,
+          "price_rolling_vnd": 281000000,
+          "price_quarter": "Q1 2026",
+          "notes": "Phiên bản tiêu chuẩn với trang bị cơ bản"
+        },
+        {
+          "name": "VF3 Plus",
+          "price_vnd": 315000000,
+          "price_rolling_vnd": 323000000,
+          "price_quarter": "Q1 2026",
+          "notes": "Phiên bản cao cấp với Apple CarPlay, Android Auto"
+        }
+      ],
+      "highlights": [
+        "Kích thước nhỏ gọn, dễ luồn lách trong đô thị",
+        "Gầm cao 191 mm, không lo ngập nước nhẹ",
+        "Thiết kế cá tính, phù hợp giới trẻ",
+        "Cấu hình 3 cửa, 4 chỗ ngồi",
+        "Màn hình 10 inch tích hợp Android Auto/Apple CarPlay",
+        "Hàng ghế sau có thể gập phẳng"
+      ],
+      "reviews": [
+        "Xe lý tưởng cho cặp vợ chồng hoặc gia đình nhỏ",
+        "Chi phí sử dụng thấp, tiết kiệm sạc pin",
+        "Dễ dàng tìm chỗ đỗ xe trong thành phố"
+      ]
+    },
+    {
+      "model": "VF5",
+      "category": "A-SUV (Compact SUV)",
+      "description": "SUV điện cỡ A hướng tới thị trường đô thị với công nghệ hiện đại, thiết kế trẻ trung",
+      "specs": {
+        "length_mm": 4175,
+        "width_mm": 1810,
+        "height_mm": 1580,
+        "seats": 5,
+        "power_kw": 150,
+        "range_km": "300-400",
+        "battery_kwh": "50-60"
+      },
+      "variants": [
+        {
+          "name": "VF5 Plus",
+          "price_vnd": 529000000,
+          "price_rolling_vnd": 537000000,
+          "price_quarter": "Q1 2026",
+          "notes": "Phiên bản duy nhất hiện tại"
+        }
+      ],
+      "highlights": [
+        "Thiết kế trẻ trung, hiện đại",
+        "Logo V đặc trưng, tương tác ánh sáng",
+        "Công nghệ thông minh, khả năng vận hành mạnh mẽ",
+        "An toàn, tính năng hỗ trợ lái nâng cao",
+        "Quãng đường di chuyển ~300-400 km/lần sạc",
+        "Miễn phí sạc pin tới 10/02/2029"
+      ],
+      "reviews": [
+        "Xe bán chạy nhất thị trường Việt Nam hiện nay",
+        "Phù hợp cho giới trẻ và dịch vụ kiếm thêm thu nhập",
+        "Chi phí vận hành rất thấp so với xe xăng"
+      ]
+    },
+    {
+      "model": "VF6",
+      "category": "B-SUV (Compact SUV)",
+      "description": "SUV điện hạng B với thiết kế hiện đại, công nghệ thông minh, dành cho khách hàng chuyên nghiệp",
+      "specs": {
+        "length_mm": 4238,
+        "width_mm": 1820,
+        "height_mm": 1594,
+        "seats": 5,
+        "power_kw": 130,
+        "range_km": "400-450",
+        "battery_kwh": "75.3"
+      },
+      "variants": [
+        {
+          "name": "VF6 Eco",
+          "price_vnd": 675000000,
+          "price_rolling_vnd": 690000000,
+          "notes": "Phiên bản tiêu chuẩn"
+        },
+        {
+          "name": "VF6 Plus",
+          "price_vnd": 765000000,
+          "price_rolling_vnd": 780000000,
+          "notes": "Phiên bản cao cấp với công suất 150 kW"
+        }
+      ],
+      "highlights": [
+        "Phiên bản cao cấp VF6 Plus có công suất 150 kW",
+        "Phiên bản Eco có công suất 130 kW",
+        "Quãng đường di chuyển 400 km khi sạc đầy",
+        "Miễn phí sạc tới năm 2027 cho khách hàng mới",
+        "Trang bị cảm biến nâng cao cho lái xe an toàn",
+        "Thiết kế bên ngoài đẹp mắt phù hợp với bạn trẻ",
+        "Nội thất tối giản, hiện đại"
+      ],
+      "reviews": [
+        "Mẫu xe SUV B được nhiều người yêu thích",
+        "Thiết kế cao cấp và sang trọng",
+        "Hiệu suất vận hành tốt, an toàn"
+      ]
+    },
+    {
+      "model": "VF7",
+      "category": "C-SUV (Compact Crossover)",
+      "description": "SUV điện hạng C hướng tới khách hàng gia đình với thiết kế thể thao, công nghệ tiên tiến",
+      "specs": {
+        "length_mm": 4550,
+        "width_mm": 1880,
+        "height_mm": 1620,
+        "seats": 5,
+        "power_kw": 220,
+        "range_km": "431-450",
+        "battery_kwh": "75.3"
+      },
+      "variants": [
+        {
+          "name": "VF7 Eco",
+          "price_vnd": 850000000,
+          "price_rolling_vnd": 870000000,
+          "notes": "Phiên bản tiêu chuẩn"
+        },
+        {
+          "name": "VF7 Plus",
+          "price_vnd": 999000000,
+          "price_rolling_vnd": 1050000000,
+          "notes": "Phiên bản cao cấp với trang bị toàn diện"
+        }
+      ],
+      "highlights": [
+        "Phong cách thiết kế SUV Coupe hiện đại",
+        "Dải LED chữ V đặc trưng",
+        "Thiết kế đầu xe không lưới tản nhiệt (đặc trưng xe điện)",
+        "Thân xe vuốt coupe thể thao, khí động học tốt",
+        "Mâm hợp kim 19-20 inch cá tính",
+        "Tay nắm cửa ẩn, tăng tính thẩm mỹ",
+        "Nội thất tối giản nhưng công nghệ",
+        "Màn hình trung tâm lớn 12.9-15.6 inch",
+        "Vô lăng D-cut thể thao, tích hợp phím chức năng",
+        "Ghế da cao cấp, chỉnh điện đa hướng"
+      ],
+      "reviews": [
+        "Thiết kế cao cấp và khác biệt so với xe xăng",
+        "Hiệu suất vận hành mạnh mẽ",
+        "Phù hợp cho khách hàng gia đình"
+      ]
+    },
+    {
+      "model": "VF8",
+      "category": "D-SUV (Large SUV)",
+      "description": "SUV điện cỡ lớn dành cho gia đình, doanh nghiệp với nhiều chỗ ngồi, công nghệ hiện đại",
+      "specs": {
+        "length_mm": 4750,
+        "width_mm": 1900,
+        "height_mm": 1675,
+        "seats": 7,
+        "power_kw": 300,
+        "range_km": "500-550",
+        "battery_kwh": "85"
+      },
+      "variants": [
+        {
+          "name": "VF8 Eco",
+          "price_vnd": 1019000000,
+          "price_rolling_vnd": 1040000000,
+          "notes": "Phiên bản tiêu chuẩn"
+        },
+        {
+          "name": "VF8 Plus",
+          "price_vnd": 1150000000,
+          "price_rolling_vnd": 1175000000,
+          "notes": "Phiên bản cao cấp"
+        }
+      ],
+      "highlights": [
+        "Cỡ D-SUV, rộng rãi cho gia đình",
+        "Cấu hình 7 chỗ ngồi",
+        "Công suất lớn, vận hành mạnh mẽ",
+        "Quãng đường di chuyển 500-550 km",
+        "Trang bị công nghệ thông minh",
+        "An toàn với nhiều hệ thống hỗ trợ"
+      ],
+      "reviews": [
+        "Xe lý tưởng cho gia đình lớn",
+        "Không gian rộng rãi, thoải mái",
+        "Hiệu suất vận hành tốt"
+      ]
+    },
+    {
+      "model": "VF9",
+      "category": "E-SUV (Full-Size SUV)",
+      "description": "SUV điện cỡ lớn cao cấp nhất của VinFast, hướng tới khách hàng cao cấp, doanh nhân",
+      "specs": {
+        "length_mm": 4954,
+        "width_mm": 1980,
+        "height_mm": 1720,
+        "seats": 6,
+        "power_kw": 402,
+        "range_km": "438-594",
+        "battery_kwh": "111"
+      },
+      "variants": [
+        {
+          "name": "VF9 Eco",
+          "price_vnd": 1499000000,
+          "price_rolling_vnd": 1540000000,
+          "notes": "Phiên bản tiêu chuẩn"
+        },
+        {
+          "name": "VF9 Plus",
+          "price_vnd": 1699000000,
+          "price_rolling_vnd": 1745000000,
+          "notes": "Phiên bản cao cấp"
+        }
+      ],
+      "highlights": [
+        "Full-size SUV cao cấp nhất của VinFast",
+        "Công suất ~402 mã lực",
+        "Dẫn động: AWD hai mô tơ điện",
+        "Quãng đường di chuyển: 438-594 km tùy phiên bản",
+        "Màn hình trung tâm lớn 15.6 inch",
+        "Hệ thống hỗ trợ lái nâng cao ADAS",
+        "Cấu hình 6 hoặc 7 chỗ ngồi",
+        "Kích thước: 4954 x 1980 x 1720 mm"
+      ],
+      "reviews": [
+        "Mẫu SUV điện lớn và hiện đại nhất tại Việt Nam",
+        "Phù hợp cho khách hàng doanh nhân, gia đình lớn",
+        "Hiệu suất và công nghệ vượt trội"
+      ]
+    }
+  ],
+  "promotions": [
+    {
+      "title": "Miễn 100% lệ phí trước bạ",
+      "description": "Xe điện được miễn 100% lệ phí trước bạ, giúp tiết kiệm từ 80-120 triệu VNĐ",
+      "validity": "2027-02-28"
+    },
+    {
+      "title": "Sạc pin miễn phí",
+      "description": "Khách hàng mua xe mới được miễn phí sạc pin tại hệ thống trạm sạc VinFast",
+      "validity": "2029-02-10"
+    },
+    {
+      "title": "Trợ giá chiết khấu",
+      "description": "Chiết khấu 6% giá xe, tương đương 31-45 triệu VNĐ tùy mẫu",
+      "validity": "2026-12-31"
+    },
+    {
+      "title": "Hỗ trợ trả góp cố định",
+      "description": "Lãi suất cố định 7-9%/năm trong 3 năm đầu, áp dụng cho hình thức vay trả góp",
+      "validity": "2026-12-31"
+    }
+  ],
+  "financing": {
+    "down_payment_options": [
+      {
+        "percent": 10,
+        "description": "Trả trước 10% giá xe"
+      },
+      {
+        "percent": 20,
+        "description": "Trả trước 20% giá xe"
+      },
+      {
+        "percent": 30,
+        "description": "Trả trước 30% giá xe"
+      }
+    ],
+    "loan_terms": [
+      36,
+      48,
+      60,
+      84,
+      96
+    ],
+    "interest_rates": {
+      "year1": "7-9%",
+      "after_year4": "9-11%"
+    }
+  },
+  "documents": [
+    {
+      "title": "Bảng Tính Trả Góp Xe Vinfast VF5",
+      "content": "VF5 Plus: Phương án 1: Trả trước 20% (102 triệu), Vay 408 triệu, Trả hàng tháng 8-9 triệu. Phương án 2: Trả trước 30% (153 triệu), Vay 357 triệu, Trả hàng tháng 7-8 triệu. Phương án 3: Trả trước 40% (204 triệu), Vay 306 triệu, Trả hàng tháng 6-7 triệu.",
+      "category": "Financing"
+    },
+    {
+      "title": "Bảng Tính Trả Góp Xe Vinfast VF6",
+      "content": "VF6 Eco: Trường hợp 1 - Trả trước 30% (202.5 triệu), Vay 472.5 triệu. Trường hợp 2 - Trả trước 20% (135 triệu), Vay 540 triệu. Trường hợp 3 - Trả trước 10% (67.5 triệu), Vay 607.5 triệu. Lãi suất ~8-12%/năm, Thời gian vay 12-84 tháng.",
+      "category": "Financing"
+    },
+    {
+      "title": "Chi Phí Lăn Bánh Xe Điện VinFast Tại Hà Nội",
+      "content": "Lệ phí trước bạ: 0% (xe điện được miễn). Phí đăng ký biển số: 20 triệu VNĐ. Phí đăng kiểm: ~340.000 VNĐ. Phí bảo trì đường bộ: ~1.560.000 VNĐ/năm (Hà Nội cao nhất). Bảo hiểm trách nhiệm dân sự: 480.000-1.000.000 VNĐ. Bảo hiểm vật chất (khuyến nghị): 1-2% giá xe.",
+      "category": "Costs"
+    },
+    {
+      "title": "Chính Sách Ưu Đãi VinFast 2026",
+      "content": "Ưu đãi giảm 3% giá xe cho khách sở hữu xe xăng (15.87 triệu). Trợ giá xe Vin 2025: 15 triệu. Chiết khấu MLTTVN: 6% (31.74 triệu). Hỗ trợ trả góp: Lãi suất cố định 7% trong 3 năm. Miễn 100% lệ phí trước bạ (đến 28/02/2027). Ưu đãi sạc pin miễn phí (đến 10/02/2029).",
+      "category": "Promotions"
+    }
+  ]
+}

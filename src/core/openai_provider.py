@@ -16,10 +16,20 @@ class OpenAIProvider(LLMProvider):
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        response = self.client.chat.completions.create(
-            model=self.model_name,
-            messages=messages,
-        )
+        from openai import RateLimitError
+        max_retries = 3
+        backoff_sec = 2
+        for attempt in range(max_retries):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model_name,
+                    messages=messages,
+                )
+                break
+            except RateLimitError as e:
+                if attempt == max_retries - 1:
+                    raise e
+                time.sleep(backoff_sec * (2 ** attempt))
 
         end_time = time.time()
         latency_ms = int((end_time - start_time) * 1000)
