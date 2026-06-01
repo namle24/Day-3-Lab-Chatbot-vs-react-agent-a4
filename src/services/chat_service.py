@@ -64,28 +64,45 @@ def _build_comparison_reply_from_struct(structured: dict[str, Any], user_message
     def _ph(item):
         return (item.get("highlights") or {}).get("price_hint")
 
-    def _rolling(item):
+    def _extract_price_and_quarter(item):
+        """Return (price_int_or_None, quarter_str_or_None) by scanning chunks."""
+        quarter = None
         for c in item.get("chunks", []):
             snip = c.get("snippet", "")
+            # Try to find rolling price
             m = re.search(r"Giá lăn bánh\s*([\d,]+)\s*VNĐ", snip, re.I)
             if m:
-                return int(m.group(1).replace(",", ""))
-        return None
+                price = int(m.group(1).replace(",", ""))
+            else:
+                price = None
+
+            # Try to find explicit "Áp dụng" quarter text added by chunking
+            q = re.search(r"Áp dụng:\s*([^\.\n]+)", snip, re.I)
+            if q:
+                quarter = q.group(1).strip()
+
+            # If we found a price, return it (and any quarter we saw)
+            if price is not None:
+                return price, quarter
+
+        return None, quarter
 
     price_a = _ph(a)
     price_b = _ph(b)
-    roll_a = _rolling(a)
-    roll_b = _rolling(b)
+    roll_a, quarter_a = _extract_price_and_quarter(a)
+    roll_b, quarter_b = _extract_price_and_quarter(b)
 
     lines = [f"So sánh {model_a} và {model_b}:"]
     if price_a:
         lines.append(f"- {model_a}: Giá niêm yết {price_a}")
     if roll_a:
-        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu): {roll_a:,} VNĐ")
+        qtext = f" (Áp dụng: {quarter_a})" if quarter_a else ""
+        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu){qtext}: {roll_a:,} VNĐ")
     if price_b:
         lines.append(f"- {model_b}: Giá niêm yết {price_b}")
     if roll_b:
-        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu): {roll_b:,} VNĐ")
+        qtext = f" (Áp dụng: {quarter_b})" if quarter_b else ""
+        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu){qtext}: {roll_b:,} VNĐ")
     if roll_a is not None and roll_b is not None:
         lines.append(f"Chênh lệch (ước tính, lăn bánh): {abs(roll_a - roll_b):,} VNĐ")
 
@@ -126,18 +143,24 @@ def _fallback_reply(
                         return (item.get("highlights") or {}).get("price_hint")
 
                     def _extract_rolling_from_chunks(item):
+                        # Return tuple (price_str_or_None, quarter_or_None)
                         chunks = item.get("chunks", [])
+                        quarter = None
                         for c in chunks:
                             snip = c.get("snippet", "")
                             m = re.search(r"Giá lăn bánh\s*([\d,]+)\s*VNĐ", snip, re.I)
                             if m:
-                                return m.group(1).replace(",", "")
-                        return None
+                                # try to extract quarter text if present
+                                q = re.search(r"Áp dụng:\s*([^\.\n]+)", snip, re.I)
+                                if q:
+                                    quarter = q.group(1).strip()
+                                return m.group(1).replace(",", ""), quarter
+                        return None, None
 
                     price_a = _extract_price_hint(a)
                     price_b = _extract_price_hint(b)
-                    rolling_a = _extract_rolling_from_chunks(a)
-                    rolling_b = _extract_rolling_from_chunks(b)
+                    rolling_a, quarter_a = _extract_rolling_from_chunks(a)
+                    rolling_b, quarter_b = _extract_rolling_from_chunks(b)
 
                     def _num(s):
                         if not s:
@@ -157,11 +180,13 @@ def _fallback_reply(
                     if price_a:
                         lines.append(f"- {model_a}: Giá niêm yết {price_a}")
                     if rolling_a:
-                        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu): {int(rolling_a):,} VNĐ".replace(',', ','))
+                        qtext = f" (Áp dụng: {quarter_a})" if quarter_a else ""
+                        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu){qtext}: {int(rolling_a):,} VNĐ")
                     if price_b:
                         lines.append(f"- {model_b}: Giá niêm yết {price_b}")
                     if rolling_b:
-                        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu): {int(rolling_b):,} VNĐ".replace(',', ','))
+                        qtext = f" (Áp dụng: {quarter_b})" if quarter_b else ""
+                        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu){qtext}: {int(rolling_b):,} VNĐ")
 
                     if diff is not None:
                         lines.append(f"Chênh lệch (ước tính, lăn bánh): {diff:,} VNĐ")

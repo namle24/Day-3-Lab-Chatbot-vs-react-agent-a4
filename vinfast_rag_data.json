@@ -18,12 +18,14 @@
           "name": "VF3 Eco",
           "price_vnd": 273000000,
           "price_rolling_vnd": 281000000,
+          "price_quarter": "Q1 2026",
           "notes": "Phiên bản tiêu chuẩn với trang bị cơ bản"
         },
         {
           "name": "VF3 Plus",
           "price_vnd": 315000000,
           "price_rolling_vnd": 323000000,
+          "price_quarter": "Q1 2026",
           "notes": "Phiên bản cao cấp với Apple CarPlay, Android Auto"
         }
       ],
@@ -59,6 +61,7 @@
           "name": "VF5 Plus",
           "price_vnd": 529000000,
           "price_rolling_vnd": 537000000,
+          "price_quarter": "Q1 2026",
           "notes": "Phiên bản duy nhất hiện tại"
         }
       ],

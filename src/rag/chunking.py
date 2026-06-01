@@ -76,8 +76,10 @@ def load_chunks_from_json(data_path: Path) -> list[dict[str, Any]]:
             price = variant.get("price_vnd", 0)
             price_rolling = variant.get("price_rolling_vnd", 0)
             notes = variant.get("notes", "")
-            
-            price_text = f"{variant_name}: Giá niêm yết {price:,} VNĐ, Giá lăn bánh {price_rolling:,} VNĐ. {notes}"
+            # Optional quarter/date info for the price (e.g., "Q1 2026", "Quý 2/2026")
+            quarter = variant.get("price_quarter", "")
+            quarter_text = f" Áp dụng: {quarter}." if quarter else ""
+            price_text = f"{variant_name}: Giá niêm yết {price:,} VNĐ, Giá lăn bánh {price_rolling:,} VNĐ.{quarter_text} {notes}"
             chunks.append({
                 "text": price_text,
                 "title": f"Giá {variant_name}",
