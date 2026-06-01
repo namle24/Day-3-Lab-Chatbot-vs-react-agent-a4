@@ -163,23 +163,66 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Helper to append a single message bubble
-    function appendMessageBubble(sender, text) {
+    // Helper to append a single message bubble (supports optional metadata like trace)
+    function appendMessageBubble(sender, text, meta) {
         const wrapper = document.createElement('div');
         wrapper.className = `message-wrapper ${sender}`;
-        
+
         // Simple helper to format text code blocks safely
         let formattedText = escapeHTML(text);
         // Replace `code` with <code>code</code>
         formattedText = formattedText.replace(/`([^`]+)`/g, '<code>$1</code>');
-        
-        wrapper.innerHTML = `
-            <div class="message-bubble">
-                ${formattedText}
-            </div>
-        `;
-        
+
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        bubble.innerHTML = formattedText;
+
+        wrapper.appendChild(bubble);
+
+        // If this is an assistant message and contains trace metadata, add a Trace button
+        if (sender === 'agent' && meta && Array.isArray(meta.trace) && meta.trace.length > 0) {
+            const controls = document.createElement('div');
+            controls.className = 'message-controls';
+
+            const traceBtn = document.createElement('button');
+            traceBtn.className = 'trace-toggle';
+            traceBtn.type = 'button';
+            traceBtn.textContent = 'Trace';
+
+            const tracePanel = document.createElement('div');
+            tracePanel.className = 'trace-panel';
+            tracePanel.style.display = 'none';
+
+            // Build trace content
+            tracePanel.innerHTML = buildTraceHtml(meta.trace);
+
+            traceBtn.addEventListener('click', () => {
+                const isVisible = tracePanel.style.display !== 'none';
+                tracePanel.style.display = isVisible ? 'none' : 'block';
+            });
+
+            controls.appendChild(traceBtn);
+            wrapper.appendChild(controls);
+            wrapper.appendChild(tracePanel);
+        }
+
         chatMessagesContainer.appendChild(wrapper);
+    }
+
+    function buildTraceHtml(trace) {
+        if (!trace || !trace.length) return '<div class="trace-empty">No trace available</div>';
+        let html = '';
+        trace.forEach(step => {
+            html += `<div class="trace-step"><div class="trace-step-header">Step ${escapeHTML(String(step.step || '0'))} ${step.final ? '<span class="trace-final">(final)</span>' : ''}</div>`;
+            if (step.thought) html += `<div class="trace-thought"><strong>Thought:</strong> ${escapeHTML(String(step.thought))}</div>`;
+            if (step.action) html += `<div class="trace-action"><strong>Action:</strong> ${escapeHTML(String(step.action))}(${escapeHTML(String(step.args || ''))})</div>`;
+            if (step.observation) html += `<div class="trace-observation"><strong>Observation:</strong> ${escapeHTML(String(step.observation)).slice(0,800)}</div>`;
+            if (step.llm_content && !step.final) html += `<div class="trace-llm"><strong>LLM:</strong> ${escapeHTML(String(step.llm_content)).slice(0,800)}</div>`;
+            if (step.error) html += `<div class="trace-error"><strong>Error:</strong> ${escapeHTML(String(step.error))}</div>`;
+            if (step.latency_ms !== undefined) html += `<div class="trace-latency">Latency: ${escapeHTML(String(step.latency_ms))}ms</div>`;
+            html += `</div>`;
+        });
+        return html;
     }
 
     // Escape HTML helpers to prevent XSS injection
@@ -243,8 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Hide typing animation
             typingIndicator.style.display = 'none';
 
-            // Append Agent reply
-            appendMessageBubble('agent', result.reply);
+            // Store the last trace globally (fallback) and append Agent reply
+            try {
+                window.__last_trace = result.trace;
+            } catch (e) {
+                // ignore
+            }
+            appendMessageBubble('agent', result.reply, { trace: result.trace || window.__last_trace });
             
             // Update preview text in sidebar
             if (previewEl) previewEl.textContent = result.reply;

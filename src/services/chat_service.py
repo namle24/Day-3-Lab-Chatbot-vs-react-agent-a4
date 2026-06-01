@@ -289,10 +289,17 @@ def handle_chat(
     sources: list[str] = []
     mode = "agent"
 
+    trace: list[dict[str, Any]] = []
     if llm:
         try:
             agent = ReActAgent(llm, executor.execute, tool_context=executor)
-            reply = agent.run(message, history=history[:-1])
+            agent_result = agent.run(message, history=history[:-1])
+            # agent.run now returns a dict with final_answer and trace
+            if isinstance(agent_result, dict):
+                reply = agent_result.get("final_answer", "")
+                trace = agent_result.get("trace", []) or []
+            else:
+                reply = str(agent_result)
             pending_action = agent.last_pending_action or executor.last_pending_action
             structured = _extract_comparison_structured(None, message)
 
@@ -335,9 +342,12 @@ def handle_chat(
             logger.info(f"Error running agent, falling back to simulated logic: {e}")
             reply, pending_action, structured = _fallback_reply(db, user_id, message)
             mode = "fallback"
+            # include a minimal trace entry for the error/fallback
+            trace = [{"step": 0, "error": str(e), "fallback": True}]
     else:
         reply, pending_action, structured = _fallback_reply(db, user_id, message)
         mode = "fallback"
+        trace = [{"step": 0, "fallback": True}]
 
     # If the user explicitly mentioned two VF models, call compare_vehicles directly
     models = re.findall(r"VF\s*(\d+)", message, re.I)
@@ -365,6 +375,9 @@ def handle_chat(
         "structured": structured,
         "mode": mode,
     }
+    # attach trace when present
+    if trace:
+        res["trace"] = trace
     # include sources if available
     if llm:
         try:

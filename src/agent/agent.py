@@ -69,6 +69,7 @@ Final Answer: câu trả lời cho khách (tiếng Việt, rõ ràng, có số l
         scratchpad = ""
         steps = 0
         final_answer = ""
+        trace: List[Dict[str, Any]] = []
 
         while steps < self.max_steps:
             prompt = (
@@ -96,10 +97,28 @@ Final Answer: câu trả lời cho khách (tiếng Việt, rõ ràng, có số l
             final_match = FINAL_RE.search(content)
             if final_match:
                 final_answer = final_match.group(1).strip()
+                # record final as a trace entry
+                trace.append(
+                    {
+                        "step": steps,
+                        "latency_ms": latency_ms,
+                        "llm_content": content.strip(),
+                        "final": True,
+                    }
+                )
                 break
 
             action_match = ACTION_RE.search(content)
             if not action_match:
+                # record the unparsed LLM output as a trace step
+                trace.append(
+                    {
+                        "step": steps,
+                        "latency_ms": latency_ms,
+                        "llm_content": content.strip(),
+                        "parsed_action": False,
+                    }
+                )
                 scratchpad += f"Assistant:\n{content}\nObservation: Không parse được Action. Hãy dùng đúng format.\n"
                 steps += 1
                 continue
@@ -111,6 +130,19 @@ Final Answer: câu trả lời cho khách (tiếng Việt, rõ ràng, có số l
             observation = self.tool_executor(tool_name, args_raw)
             if self.tool_context is not None and hasattr(self.tool_context, "last_pending_action"):
                 self.last_pending_action = self.tool_context.last_pending_action
+
+            # append a structured trace entry for this step
+            trace.append(
+                {
+                    "step": steps,
+                    "thought": thought,
+                    "action": tool_name,
+                    "args": args_raw,
+                    "observation": observation,
+                    "llm_content": content.strip(),
+                    "latency_ms": latency_ms,
+                }
+            )
 
             scratchpad += (
                 f"Thought: {thought}\n"
@@ -126,4 +158,4 @@ Final Answer: câu trả lời cho khách (tiếng Việt, rõ ràng, có số l
             )
 
         logger.log_event("AGENT_END", {"steps": steps})
-        return final_answer
+        return {"final_answer": final_answer, "trace": trace}

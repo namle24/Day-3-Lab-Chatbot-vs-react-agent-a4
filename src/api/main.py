@@ -186,7 +186,10 @@ def post_chat_api(body: ChatRequest, db: Session = Depends(get_db)):
         "mode": result["mode"],
         "model": model,
         "provider": provider.capitalize(),
-        "latency_ms": latency_ms
+        "latency_ms": latency_ms,
+        # include trace and sources when available so lightweight clients can render agent internals
+        "trace": result.get("trace"),
+        "sources": result.get("sources", []),
     }
 
 

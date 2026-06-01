@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 from pydantic import BaseModel, Field
 
@@ -20,6 +20,7 @@ class ChatResponse(BaseModel):
     trace_id: str
     pending_action: Optional[dict[str, Any]] = None
     structured: Optional[dict[str, Any]] = None
+    trace: Optional[List[dict[str, Any]]] = None
     mode: str = "agent"
 
 
