@@ -118,14 +118,21 @@ def handle_chat(
             structured = _extract_comparison_structured(None, message)
         except Exception as e:
             from src.telemetry.logger import logger
-            logger.log_event(
-                "AGENT_ERROR_FALLBACK",
-                {
-                    "user_id": user_id,
-                    "error": str(e),
-                    "message": message
-                }
-            )
+            # Log a structured event for telemetry
+            try:
+                logger.log_event(
+                    "AGENT_ERROR_FALLBACK",
+                    {
+                        "user_id": user_id,
+                        "error": str(e),
+                        "message": message,
+                    },
+                )
+            except Exception:
+                # Fallback to simple info logging if structured logging fails
+                logger.info(f"Error running agent (structured log failed): {e}")
+            # Also emit a human-readable info log
+            logger.info(f"Error running agent, falling back to simulated logic: {e}")
             reply, pending_action, structured = _fallback_reply(db, user_id, message)
             mode = "fallback"
     else:

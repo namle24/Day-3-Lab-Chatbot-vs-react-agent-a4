@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Chatroom - Memory System</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div id="app-container" class="app-container">
+        
+        <!-- SIDEBAR (25% width) -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a10 10 0 0 0-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10c0-3.33-1.632-6.279-4.12-8.11"></path>
+                        <path d="M12 6v6l4 2"></path>
+                    </svg>
+                    <h2>AI Agent Memory</h2>
+                </div>
+                <p class="subtitle">Mô phỏng bộ nhớ khách hàng</p>
+            </div>
+            
+            <div class="user-section">
+                <span class="section-title">Danh sách User Mô phỏng</span>
+                <div id="user-list" class="user-list">
+                    <!-- User Items will be rendered here dynamically -->
+                    <div class="skeleton-user-item"></div>
+                    <div class="skeleton-user-item"></div>
+                    <div class="skeleton-user-item"></div>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <div class="status-indicator online"></div>
+                    <span id="provider-badge">Provider: Loading...</span>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- MAIN CHAT CONTAINER (75% width) -->
+        <main id="chat-container" class="chat-container">
+            <!-- Active User Header -->
+            <header id="chat-header" class="chat-header">
+                <div class="active-user-info">
+                    <div id="active-user-avatar" class="active-avatar">--</div>
+                    <div class="active-details">
+                        <h3 id="active-user-name">Đang tải...</h3>
+                        <p id="active-user-profile">Đang kết nối hệ thống...</p>
+                    </div>
+                </div>
+                <div class="model-info">
+                    <span class="info-label">Active Model:</span>
+                    <span id="active-model-name" class="model-badge">Detecting...</span>
+                </div>
+            </header>
+            
+            <!-- Chat Messages Box -->
+            <div id="chat-messages" class="chat-messages">
+                <!-- Messages will be populated here -->
+                <div class="empty-state">
+                    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <h4>Chưa chọn cuộc trò chuyện</h4>
+                    <p>Hãy click vào một user giả lập bên trái để tải lịch sử chat (Memory).</p>
+                </div>
+            </div>
+            
+            <!-- Typing Indicator -->
+            <div id="typing-indicator-container" class="typing-indicator-container">
+                <div class="typing-indicator">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                <span class="typing-text">Agent đang phân tích và phản hồi...</span>
+            </div>
+            
+            <!-- Fixed Bottom Input Bar -->
+            <footer class="chat-footer">
+                <form id="chat-form" class="chat-form">
+                    <input 
+                        type="text" 
+                        id="message-input" 
+                        placeholder="Nhập tin nhắn để tiếp tục cuộc trò chuyện..." 
+                        autocomplete="off" 
+                        disabled
+                    >
+                    <button type="submit" id="send-button" class="send-button" disabled>
+                        <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                        <span>Gửi</span>
+                    </button>
+                </form>
+            </footer>
+        </main>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
