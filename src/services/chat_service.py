@@ -14,15 +14,82 @@ from src.tools import test_drive as test_drive_tool
 
 
 def _extract_comparison_structured(agent_scratchpad: str | None, user_message: str) -> dict[str, Any] | None:
-    if not re.search(r"VF\s*5|VF\s*6", user_message, re.I):
-        return None
+    # Check if message is asking for comparison
     if not re.search(r"so sánh|phan vân|phân vân|compare", user_message, re.I):
         return None
+    
+    # Extract all VF models from user message
+    models = re.findall(r"VF\s*(\d+)", user_message, re.I)
+    if not models:
+        return None
+    
+    # Remove duplicates while preserving order
+    unique_models = []
+    for m in models:
+        if m not in unique_models:
+            unique_models.append(m)
+    
+    # Need exactly 2 different models to compare
+    if len(unique_models) < 2:
+        return None
+    
+    # Take first two unique models
+    model_a = f"VF{unique_models[0]}"
+    model_b = f"VF{unique_models[1]}"
+    
     try:
-        data = vehicle_lookup.compare_vehicles("VF5", "VF6")
+        data = vehicle_lookup.compare_vehicles(model_a, model_b)
         return data.get("comparison")
     except Exception:
         return None
+
+
+def _build_comparison_reply_from_struct(structured: dict[str, Any], user_message: str) -> str:
+    """Create a concise comparison reply from a structured compare_vehicles result."""
+    if not structured:
+        return ""
+    models = list((structured.get("models") or {}).keys())
+    if len(models) < 2:
+        # Try to extract from user message
+        m = re.findall(r"VF\s*(\d+)", user_message, re.I)
+        if len(m) >= 2:
+            models = [f"VF{m[0]}", f"VF{m[1]}"]
+    if len(models) < 2:
+        return ""
+
+    model_a, model_b = models[0], models[1]
+    a = (structured.get("models") or {}).get(model_a, {})
+    b = (structured.get("models") or {}).get(model_b, {})
+
+    def _ph(item):
+        return (item.get("highlights") or {}).get("price_hint")
+
+    def _rolling(item):
+        for c in item.get("chunks", []):
+            snip = c.get("snippet", "")
+            m = re.search(r"Giá lăn bánh\s*([\d,]+)\s*VNĐ", snip, re.I)
+            if m:
+                return int(m.group(1).replace(",", ""))
+        return None
+
+    price_a = _ph(a)
+    price_b = _ph(b)
+    roll_a = _rolling(a)
+    roll_b = _rolling(b)
+
+    lines = [f"So sánh {model_a} và {model_b}:"]
+    if price_a:
+        lines.append(f"- {model_a}: Giá niêm yết {price_a}")
+    if roll_a:
+        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu): {roll_a:,} VNĐ")
+    if price_b:
+        lines.append(f"- {model_b}: Giá niêm yết {price_b}")
+    if roll_b:
+        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu): {roll_b:,} VNĐ")
+    if roll_a is not None and roll_b is not None:
+        lines.append(f"Chênh lệch (ước tính, lăn bánh): {abs(roll_a - roll_b):,} VNĐ")
+
+    return "\n".join(lines)
 
 
 def _fallback_reply(
@@ -33,13 +100,85 @@ def _fallback_reply(
     pending = None
     structured = None
 
-    if re.search(r"so sánh|phan vân|vf\s*5.*vf\s*6", msg):
-        cmp = vehicle_lookup.compare_vehicles("VF5", "VF6")
-        structured = cmp.get("comparison")
+    # Try dynamic comparison extraction first
+    if re.search(r"so sánh|phan vân|phân vân|compare", msg):
+        models = re.findall(r"VF\s*(\d+)", message, re.I)
+        if models:
+            unique_models = []
+            for m in models:
+                if m not in unique_models:
+                    unique_models.append(m)
+            if len(unique_models) >= 2:
+                model_a = f"VF{unique_models[0]}"
+                model_b = f"VF{unique_models[1]}"
+                try:
+                    cmp = vehicle_lookup.compare_vehicles(model_a, model_b)
+                    structured = cmp.get("comparison") if cmp else None
+                    if not structured:
+                        # No comparison data returned; bail to friendly prompt
+                        reply = "Xin lỗi, hiện không tìm thấy dữ liệu so sánh chi tiết. Bạn vui lòng thử lại hoặc nêu rõ hai mẫu cần so sánh."
+                        return reply, pending, None
+                    # Build a concise, non-canned comparison reply from the tool data
+                    a = structured.get("models", {}).get(model_a, {})
+                    b = structured.get("models", {}).get(model_b, {})
+
+                    def _extract_price_hint(item):
+                        return (item.get("highlights") or {}).get("price_hint")
+
+                    def _extract_rolling_from_chunks(item):
+                        chunks = item.get("chunks", [])
+                        for c in chunks:
+                            snip = c.get("snippet", "")
+                            m = re.search(r"Giá lăn bánh\s*([\d,]+)\s*VNĐ", snip, re.I)
+                            if m:
+                                return m.group(1).replace(",", "")
+                        return None
+
+                    price_a = _extract_price_hint(a)
+                    price_b = _extract_price_hint(b)
+                    rolling_a = _extract_rolling_from_chunks(a)
+                    rolling_b = _extract_rolling_from_chunks(b)
+
+                    def _num(s):
+                        if not s:
+                            return None
+                        m = re.search(r"([0-9,]+)", s)
+                        if not m:
+                            return None
+                        return int(m.group(1).replace(",", ""))
+
+                    n_roll_a = _num(rolling_a) or _num(price_a)
+                    n_roll_b = _num(rolling_b) or _num(price_b)
+                    diff = None
+                    if n_roll_a is not None and n_roll_b is not None:
+                        diff = abs(n_roll_a - n_roll_b)
+
+                    lines = [f"So sánh {model_a} và {model_b}:"]
+                    if price_a:
+                        lines.append(f"- {model_a}: Giá niêm yết {price_a}")
+                    if rolling_a:
+                        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu): {int(rolling_a):,} VNĐ".replace(',', ','))
+                    if price_b:
+                        lines.append(f"- {model_b}: Giá niêm yết {price_b}")
+                    if rolling_b:
+                        lines.append(f"  Giá lăn bánh (ghi trong dữ liệu): {int(rolling_b):,} VNĐ".replace(',', ','))
+
+                    if diff is not None:
+                        lines.append(f"Chênh lệch (ước tính, lăn bánh): {diff:,} VNĐ")
+
+                    # If nothing useful, fall back to a short prompt asking to clarify
+                    if len(lines) == 1:
+                        reply = f"Mình tìm thấy {model_a} và {model_b} nhưng không có thông tin giá chi tiết. Bạn muốn mình tra thêm không?"
+                    else:
+                        reply = "\n".join(lines)
+
+                    return reply, pending, structured
+                except Exception:
+                    pass
+        
+        # Could not extract two models to compare
         reply = (
-            "Dạ, em đã tra cứu dữ liệu VF5 và VF6. VF5 nhỏ gọn, giá từ ~529 triệu, phù hợp đi phố. "
-            "VF6 rộng hơn cho gia đình 4 người, giá từ ~689 triệu. "
-            "Anh/chị muốn em tính chênh lệch giá lăn bánh cụ thể không ạ?"
+            "Mình chưa nhận diện được đủ hai mẫu để so sánh. Vui lòng nêu rõ hai mẫu (ví dụ: 'So sánh VF3 và VF5')."
         )
         return reply, pending, structured
 
@@ -71,8 +210,7 @@ def _fallback_reply(
         return reply, pending, structured
 
     return (
-        "Hệ thống đang chạy chế độ fallback (chưa cấu hình LLM). "
-        "Hãy đặt OPENAI_API_KEY trong .env hoặc hỏi: so sánh VF5 và VF6.",
+        "Hệ thống đang chạy chế độ fallback (LLM chưa hoạt động). Vui lòng cấu hình API key hoặc hỏi lại với hai mẫu rõ ràng.",
         None,
         None,
     )
@@ -138,6 +276,23 @@ def handle_chat(
     else:
         reply, pending_action, structured = _fallback_reply(db, user_id, message)
         mode = "fallback"
+
+    # If the user explicitly mentioned two VF models, call compare_vehicles directly
+    models = re.findall(r"VF\s*(\d+)", message, re.I)
+    if len(models) >= 2:
+        model_a = f"VF{models[0]}"
+        model_b = f"VF{models[1]}"
+        try:
+            from src.telemetry.logger import logger
+            logger.info(f"Fallback direct-compare: extracted models {model_a}, {model_b}")
+            cmp = vehicle_lookup.compare_vehicles(model_a, model_b)
+            logger.info(f"Fallback compare result keys: {list((cmp.get('comparison') or {}).get('models', {}).keys()) if cmp else 'no cmp'}")
+            structured = cmp.get("comparison") if cmp else structured
+            dynamic = _build_comparison_reply_from_struct(structured, message)
+            if dynamic:
+                reply = dynamic
+        except Exception:
+            pass
 
     repo.add_message(db, user_id, "assistant", reply)
 
