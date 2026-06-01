@@ -93,3 +93,12 @@ def confirm_test_drive(db: Session, appointment_id: str, user_id: str) -> TestDr
 
 def get_appointment(db: Session, appointment_id: str) -> TestDriveAppointment | None:
     return db.get(TestDriveAppointment, appointment_id)
+
+
+def delete_messages(db: Session, user_id: str) -> int:
+    from sqlalchemy import delete
+    stmt = delete(ChatMessage).where(ChatMessage.user_id == user_id)
+    result = db.execute(stmt)
+    db.commit()
+    return result.rowcount
+

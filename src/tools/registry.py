@@ -87,7 +87,16 @@ class ToolExecutor:
         try:
             parsed_args = _parse_args(args_raw)
             result = self._dispatch(tool_name, parsed_args)
-            observation = result if isinstance(result, str) else json.dumps(result, ensure_ascii=False)
+            if isinstance(result, str):
+                observation = result
+            elif tool_name == "lookup_vehicle":
+                observation = vehicle_lookup.format_lookup_for_agent(result)
+            elif tool_name == "compare_vehicles":
+                observation = vehicle_lookup.format_comparison_for_agent(result)
+            elif tool_name == "search_reviews":
+                observation = reviews_search.format_reviews_for_agent(result)
+            else:
+                observation = json.dumps(result, ensure_ascii=False)
         except Exception as e:
             observation = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False)
 
@@ -132,15 +141,19 @@ class ToolExecutor:
         if tool_name == "calculate":
             mode = args.get("mode", "expression")
             if mode == "down_payment":
-                return calculator.down_payment(
-                    float(args["price"]),
-                    float(args["percent"]),
-                )
+                try:
+                    price = float(args.get("price", 0))
+                    percent = float(args.get("percent", 0))
+                    return calculator.down_payment(price, percent)
+                except (KeyError, ValueError, TypeError) as e:
+                    return {"ok": False, "error": f"Lỗi tham số down_payment: {e}"}
             if mode == "difference":
-                return calculator.price_difference(
-                    float(args["price_a"]),
-                    float(args["price_b"]),
-                )
+                try:
+                    price_a = float(args.get("price_a", 0))
+                    price_b = float(args.get("price_b", 0))
+                    return calculator.price_difference(price_a, price_b)
+                except (KeyError, ValueError, TypeError) as e:
+                    return {"ok": False, "error": f"Lỗi tham số difference: {e}"}
             return calculator.calculate(args.get("expression", ""))
         if tool_name == "schedule_test_drive":
             payload = test_drive.schedule_test_drive(

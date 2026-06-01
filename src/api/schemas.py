@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 class ChatRequest(BaseModel):
     user_id: str = Field(..., examples=["user1"])
     message: str
-    confirm_action_id: Optional[str] = None
+    confirm_action_id: Optional[str] = Field(default=None, examples=[None])
 
 
 class PendingAction(BaseModel):

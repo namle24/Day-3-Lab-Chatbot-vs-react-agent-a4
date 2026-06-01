@@ -122,7 +122,7 @@ Final Answer: câu trả lời cho khách (tiếng Việt, rõ ràng, có số l
         if not final_answer:
             final_answer = (
                 "Em cần thêm thông tin hoặc đã đạt giới hạn bước suy luận. "
-                "Anh/chị vui lòng thử hỏi cụ thể hơn (ví dụ: so sánh VF5 và VF6)."
+                "Anh/chị vui lòng hỏi rõ hai mẫu cần so sánh (ví dụ: 'So sánh hai mẫu bạn quan tâm')."
             )
 
         logger.log_event("AGENT_END", {"steps": steps})

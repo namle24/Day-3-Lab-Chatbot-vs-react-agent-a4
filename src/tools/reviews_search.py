@@ -14,3 +14,16 @@ def search_reviews(query: str, car_model: str | None = None, top_k: int = 3) -> 
         "car_model": car_model,
         "reviews": hits,
     }
+def format_reviews_for_agent(payload: dict[str, Any]) -> str:
+    reviews = payload.get("reviews", [])
+    if not reviews:
+        return "Không tìm thấy đánh giá review nào cho xe này."
+    
+    formatted = []
+    for idx, r in enumerate(reviews, 1):
+        formatted.append(
+            f"=== ĐÁNH GIÁ THỰC TẾ [{idx}] ===\n"
+            f"• Tiêu đề: {r.get('title', 'N/A')}\n"
+            f"• Đánh giá: {r.get('snippet', '').strip()}\n"
+        )
+    return "\n".join(formatted)
