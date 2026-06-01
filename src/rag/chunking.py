@@ -62,6 +62,17 @@ def load_chunks_from_json(data_path: Path) -> list[dict[str, Any]]:
         title = product.get("title", "")
         url = product.get("url", "")
         content = product.get("content", "")
+        
+        # Strip noisy related articles footer and product list block to prevent search contamination
+        for noise_marker in [
+            "Xem thêm các bài viết liên quan khác:",
+            "Xem thêm các bài viết liên quan khác",
+            "Sản Phẩm VinFast VF3 Eco",
+            "Sản Phẩm VinFast"
+        ]:
+            if noise_marker in content:
+                content = content.split(noise_marker)[0].strip()
+
         models = normalize_model_label(title + " " + content[:500])
         if not models:
             models = ["unknown"]

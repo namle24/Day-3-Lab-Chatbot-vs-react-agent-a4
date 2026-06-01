@@ -95,7 +95,7 @@ class VinFastRAGStore:
             if score <= 0:
                 continue
             c = self.chunks[idx]
-            snippet = c["text"][:500] + ("..." if len(c["text"]) > 500 else "")
+            snippet = c["text"]
             results.append(
                 {
                     "score": round(score, 4),

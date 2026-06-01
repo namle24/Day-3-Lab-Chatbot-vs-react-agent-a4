@@ -46,3 +46,14 @@ def get_tool_logs(
         )
         for log in logs
     ]
+
+
+@router.delete("/sessions/{user_id}/messages")
+def delete_session_messages(user_id: str, db: Session = Depends(get_db)):
+    deleted_count = repo.delete_messages(db, user_id)
+    return {
+        "ok": True,
+        "message": f"Đã xóa thành công {deleted_count} tin nhắn của session '{user_id}'.",
+        "deleted_count": deleted_count
+    }
+

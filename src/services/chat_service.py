@@ -111,10 +111,23 @@ def handle_chat(
     mode = "agent"
 
     if llm:
-        agent = ReActAgent(llm, executor.execute, tool_context=executor)
-        reply = agent.run(message, history=history[:-1])
-        pending_action = agent.last_pending_action or executor.last_pending_action
-        structured = _extract_comparison_structured(None, message)
+        try:
+            agent = ReActAgent(llm, executor.execute, tool_context=executor)
+            reply = agent.run(message, history=history[:-1])
+            pending_action = agent.last_pending_action or executor.last_pending_action
+            structured = _extract_comparison_structured(None, message)
+        except Exception as e:
+            from src.telemetry.logger import logger
+            logger.log_event(
+                "AGENT_ERROR_FALLBACK",
+                {
+                    "user_id": user_id,
+                    "error": str(e),
+                    "message": message
+                }
+            )
+            reply, pending_action, structured = _fallback_reply(db, user_id, message)
+            mode = "fallback"
     else:
         reply, pending_action, structured = _fallback_reply(db, user_id, message)
         mode = "fallback"

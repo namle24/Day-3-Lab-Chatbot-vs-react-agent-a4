@@ -33,6 +33,34 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+from fastapi.responses import JSONResponse
+from fastapi import Request
+import traceback
+from src.telemetry.logger import logger
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    tb = traceback.format_exc()
+    logger.log_event(
+        "SYSTEM_ERROR",
+        {
+            "path": request.url.path,
+            "error": str(exc),
+            "traceback": tb
+        }
+    )
+    return JSONResponse(
+        status_code=500,
+        content={
+            "reply": "Dạ, hệ thống đang gặp gián đoạn kỹ thuật tạm thời. Quý khách vui lòng thử lại sau giây lát nhé!",
+            "trace_id": "error-500",
+            "pending_action": None,
+            "structured": None,
+            "mode": "error"
+        },
+    )
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
