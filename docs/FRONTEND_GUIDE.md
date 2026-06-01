@@ -167,6 +167,45 @@ curl -X POST http://localhost:8000/api/v1/chat \
 | `structured` | Dữ liệu bảng so sánh VF5/VF6 (optional render table) |
 | `mode` | `"agent"` = có LLM; `"fallback"` = không LLM; `"confirm"` = sau xác nhận |
 
+### Trace support (Agent transparency)
+
+The backend now returns a `trace` field inside the `ChatResponse` when the agent runs in `agent` mode. Each item in `trace` is a step object with some of these keys:
+
+- `step`: integer step index
+- `thought`: textual Thought emitted by LLM (if parsed)
+- `action`: tool name invoked (e.g., `lookup_vehicle`)
+- `args`: raw arguments passed to the tool
+- `observation`: tool output observed by the agent
+- `llm_content`: full LLM response for that step
+- `latency_ms`: LLM call latency in milliseconds
+- `final`: boolean indicating final answer step
+- `parsed_action`: false when LLM output couldn't be parsed as an `Action`
+
+UI suggestion: render a small `Trace` button next to each assistant bubble. When clicked, expand a panel that lists each step in order, showing `Thought`, `Action(args)`, `Observation` and `latency_ms`. For `final` step, show the final answer marker.
+
+Example TypeScript render snippet (React):
+
+```typescript
+function TracePanel({trace}: {trace?: any[]}) {
+  if (!trace || !trace.length) return null;
+  return (
+    <div className="trace-panel">
+      {trace.map((s, i) => (
+        <div key={i} className="trace-step">
+          <div><strong>Step {s.step}</strong> {s.final ? '(final)' : ''}</div>
+          {s.thought && <div><em>Thought:</em> {s.thought}</div>}
+          {s.action && <div><em>Action:</em> {s.action}({s.args})</div>}
+          {s.observation && <div><em>Observation:</em> {String(s.observation).slice(0,400)}</div>}
+          {s.latency_ms !== undefined && <div className="muted">Latency: {s.latency_ms}ms</div>}
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+Wire the `Trace` button to toggle visibility of `TracePanel` for each assistant message. This provides visibility into the agent's Thought→Action→Observation loop and helps debug hallucinations.
+
 **`pending_action` khi đặt lịch lái thử:**
 
 ```json
