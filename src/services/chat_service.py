@@ -11,6 +11,7 @@ from src.db import repository as repo
 from src.tools import vehicle_lookup
 from src.tools.registry import ToolExecutor
 from src.tools import test_drive as test_drive_tool
+from src.rag.store import _first_match
 
 
 def _extract_comparison_structured(agent_scratchpad: str | None, user_message: str) -> dict[str, Any] | None:
@@ -115,16 +116,50 @@ def handle_chat(
         reply = agent.run(message, history=history[:-1])
         pending_action = agent.last_pending_action or executor.last_pending_action
         structured = _extract_comparison_structured(None, message)
+        # Verification step: cross-check LLM claims (simple heuristics) with RAG lookup
+        try:
+            lookup = vehicle_lookup.lookup_vehicle(message, top_k=5)
+            hits = lookup.get("results", [])
+            def _has_price(text: str) -> bool:
+                if not text:
+                    return False
+                return bool(_first_match(text, [r"(\d[\d.,]*\s*(?:triệu|tỷ|vnđ|đồng|VND))"]))
+
+            prices_in_reply = _has_price(reply)
+            prices_in_lookup = any(_has_price(h.get("snippet", "")) or _has_price(h.get("text", "")) for h in hits)
+
+            sources = [h.get("url") for h in hits if h.get("url")]
+            # If LLM produced numeric claims but RAG has no supporting price, warn and include sources if any.
+            if prices_in_reply and not prices_in_lookup:
+                prefix = (
+                    "[CHÚ Ý] Không tìm thấy nguồn xác nhận trong cơ sở dữ liệu RAG cho các con số trong câu trả lời. "
+                    "Thông tin dưới đây có thể chưa được kiểm chứng:\n\n"
+                )
+                reply = prefix + reply
+            elif sources:
+                # append concise source list when available
+                src_lines = "\n\nNguồn tham khảo:\n" + "\n".join(f"- {u}" for u in sources)
+                reply = reply + src_lines
+        except Exception:
+            # on any lookup error, don't fail the chat; keep original reply
+            sources = []
     else:
         reply, pending_action, structured = _fallback_reply(db, user_id, message)
         mode = "fallback"
 
     repo.add_message(db, user_id, "assistant", reply)
 
-    return {
+    res = {
         "reply": reply,
         "trace_id": trace_id,
         "pending_action": pending_action,
         "structured": structured,
         "mode": mode,
     }
+    # include sources if available
+    if llm:
+        try:
+            res["sources"] = sources
+        except Exception:
+            res["sources"] = []
+    return res

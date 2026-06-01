@@ -104,6 +104,10 @@ class VinFastRAGStore:
                     "models": c.get("models", []),
                     "category": c.get("category", ""),
                     "snippet": snippet,
+                    "text": c.get("text", ""),
+                    "chunk_index": c.get("chunk_index"),
+                    "keywords": c.get("keywords", []),
+                    "short": c.get("short", False),
                 }
             )
         return results
