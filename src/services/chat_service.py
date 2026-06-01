@@ -87,7 +87,7 @@ def handle_chat(
     trace_id = str(uuid.uuid4())
     repo.add_message(db, user_id, "user", message)
 
-    if confirm_action_id:
+    if confirm_action_id and confirm_action_id != "string" and confirm_action_id.strip() != "":
         confirmed = test_drive_tool.confirm_appointment(db, user_id, confirm_action_id)
         reply = confirmed.get("message", confirmed.get("error", "Không xác nhận được."))
         repo.add_message(db, user_id, "assistant", reply)
