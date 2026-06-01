@@ -5,7 +5,7 @@ from typing import Dict, Any, Optional, Generator
 from src.core.llm_provider import LLMProvider
 
 class GeminiProvider(LLMProvider):
-    def __init__(self, model_name: str = "gemini-1.5-flash", api_key: Optional[str] = None):
+    def __init__(self, model_name: str = "gemini-2.5-flash", api_key: Optional[str] = None):
         super().__init__(model_name, api_key)
         genai.configure(api_key=self.api_key)
         self.model = genai.GenerativeModel(model_name)
@@ -19,7 +19,17 @@ class GeminiProvider(LLMProvider):
         if system_prompt:
             full_prompt = f"System: {system_prompt}\n\nUser: {prompt}"
 
-        response = self.model.generate_content(full_prompt)
+        from google.api_core.exceptions import ResourceExhausted
+        max_retries = 3
+        backoff_sec = 2
+        for attempt in range(max_retries):
+            try:
+                response = self.model.generate_content(full_prompt)
+                break
+            except ResourceExhausted as e:
+                if attempt == max_retries - 1:
+                    raise e
+                time.sleep(backoff_sec * (2 ** attempt))
 
         end_time = time.time()
         latency_ms = int((end_time - start_time) * 1000)

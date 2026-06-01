@@ -39,7 +39,10 @@ main
 
 ```bash
 cd ~/VINAI/Day-3-Lab-Chatbot-vs-react-agent-a4
-source .venv/bin/activate
+# macOS/Linux: source .venv/bin/activate
+# Windows (PowerShell): .venv\Scripts\Activate.ps1
+# Windows (CMD): .venv\Scripts\activate.bat
+# Windows (Git Bash): source .venv/Scripts/activate
 
 # Đảm bảo không add nhầm secret / artifact
 git status

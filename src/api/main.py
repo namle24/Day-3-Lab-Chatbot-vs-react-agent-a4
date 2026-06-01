@@ -4,11 +4,12 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy.orm import Session
+import traceback
 
 from src.api.routes import chat, sessions, tools
 from src.db.database import init_db, get_db
@@ -17,6 +18,7 @@ from src.services.chat_service import handle_chat
 from src.api.schemas import ChatRequest
 from src.rag.ingest import ingest as build_rag_index
 from src.rag.store import VinFastRAGStore
+from src.telemetry.logger import logger
 
 load_dotenv()
 
@@ -39,6 +41,30 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    tb = traceback.format_exc()
+    logger.log_event(
+        "SYSTEM_ERROR",
+        {
+            "path": request.url.path,
+            "error": str(exc),
+            "traceback": tb
+        }
+    )
+    return JSONResponse(
+        status_code=500,
+        content={
+            "reply": "Dạ, hệ thống đang gặp gián đoạn kỹ thuật tạm thời. Quý khách vui lòng thử lại sau giây lát nhé!",
+            "trace_id": "error-500",
+            "pending_action": None,
+            "structured": None,
+            "mode": "error"
+        },
+    )
+
 
 app.add_middleware(
     CORSMiddleware,

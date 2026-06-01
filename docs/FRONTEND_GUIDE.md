@@ -34,7 +34,16 @@ cd Day-3-Lab-Chatbot-vs-react-agent-a4
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
+# Windows (PowerShell):
+# Run this first if you get a script execution security error: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+.venv\Scripts\Activate.ps1
+# Windows (CMD):
+.venv\Scripts\activate.bat
+# Windows (Git Bash):
+source .venv/Scripts/activate
+
 pip install -r requirements-api.txt
 ```
 
@@ -60,7 +69,15 @@ python -m src.rag.ingest
 ### 2.4. Chạy server
 
 ```bash
+# macOS/Linux:
 source .venv/bin/activate
+# Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+# Windows (CMD):
+.venv\Scripts\activate.bat
+# Windows (Git Bash):
+source .venv/Scripts/activate
+
 python run_api.py
 ```
 
@@ -427,7 +444,15 @@ Sau merge:
 ```bash
 cd frontend && npm install && npm run dev
 # Terminal khác:
+
+# macOS/Linux:
 source .venv/bin/activate && python run_api.py
+
+# Windows (PowerShell):
+.venv\Scripts\Activate.ps1; python run_api.py
+
+# Windows (CMD):
+.venv\Scripts\activate.bat && python run_api.py
 ```
 
 ### 7.5. Integrate lần đầu (cả nhóm)

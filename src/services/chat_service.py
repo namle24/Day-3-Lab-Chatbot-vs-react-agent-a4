@@ -119,6 +119,14 @@ def handle_chat(
         except Exception as e:
             from src.telemetry.logger import logger
             logger.info(f"Error running agent, falling back to simulated logic: {e}")
+            logger.log_event(
+                "AGENT_ERROR_FALLBACK",
+                {
+                    "user_id": user_id,
+                    "error": str(e),
+                    "message": message
+                }
+            )
             reply, pending_action, structured = _fallback_reply(db, user_id, message)
             mode = "fallback"
     else:
